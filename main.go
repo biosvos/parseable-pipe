@@ -98,7 +98,6 @@ func main() {
 			}
 			log.Panicf("%+v", err)
 		}
-		log.Println(string(line), prefix, err)
 
 		record := Record{Logs: string(line)}
 		var buffer bytes.Buffer
