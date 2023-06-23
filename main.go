@@ -15,9 +15,9 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	name := flag.String("name", "", "name")
+	stream := flag.String("stream", "", "stream")
 	flag.Parse()
-	if name == nil || *name == "" {
+	if stream == nil || *stream == "" {
 		log.Println("set name")
 		return
 	}
@@ -28,7 +28,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err := parser.CreateStream(ctx, *name)
+	err := parser.CreateStream(ctx, *stream)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
@@ -46,7 +46,7 @@ func main() {
 			log.Panicf("%+v", err)
 		}
 
-		err = parser.SendLog(ctx, *name, string(line))
+		err = parser.SendLog(ctx, *stream, string(line))
 		if err != nil {
 			log.Panicf("%+v", err)
 		}
