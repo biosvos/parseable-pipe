@@ -1,4 +1,4 @@
-module github.com/biosvos/go-template
+module github.com/biosvos/parseable-pipe
 
 go 1.20
 
