@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -12,10 +14,10 @@ import (
 	"os"
 )
 
-type HttpCode int
+type HTTPCode int
 
-func Put(url string, header map[string]string, reader io.Reader) (HttpCode, string) {
-	request, err := http.NewRequest(http.MethodPut, url, reader)
+func Put(ctx context.Context, url string, header map[string]string, reader io.Reader) (HTTPCode, string) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodPut, url, reader)
 	if err != nil {
 		panic(err)
 	}
@@ -25,8 +27,8 @@ func Put(url string, header map[string]string, reader io.Reader) (HttpCode, stri
 	return doRequest(request)
 }
 
-func Post(url string, header map[string]string, reader io.Reader) (HttpCode, string) {
-	request, err := http.NewRequest(http.MethodPost, url, reader)
+func Post(ctx context.Context, url string, header map[string]string, reader io.Reader) (HTTPCode, string) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url, reader)
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +38,7 @@ func Post(url string, header map[string]string, reader io.Reader) (HttpCode, str
 	return doRequest(request)
 }
 
-func doRequest(request *http.Request) (HttpCode, string) {
+func doRequest(request *http.Request) (HTTPCode, string) {
 	rsp, err := http.DefaultClient.Do(request)
 	if err != nil {
 		panic(err)
@@ -49,18 +51,14 @@ func doRequest(request *http.Request) (HttpCode, string) {
 	}()
 	all, err := io.ReadAll(rsp.Body)
 	if err != nil {
-		return HttpCode(rsp.StatusCode), ""
+		return HTTPCode(rsp.StatusCode), ""
 	}
 
-	return HttpCode(rsp.StatusCode), string(all)
-}
-
-func isSuccess(code int) bool {
-	return code == 200
+	return HTTPCode(rsp.StatusCode), string(all)
 }
 
 type Record struct {
-	Logs string
+	Logs string `json:"logs"`
 }
 
 func main() {
@@ -73,8 +71,10 @@ func main() {
 		return
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	auth := "YWRtaW46YWRtaW4K"
-	code, result := Put(fmt.Sprintf("http://127.0.0.1:8000/api/v1/logstream/%v", *name), map[string]string{
+	code, result := Put(ctx, fmt.Sprintf("http://127.0.0.1:8000/api/v1/logstream/%v", *name), map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
 	}, nil)
 	log.Println(result)
@@ -93,7 +93,7 @@ func main() {
 			break
 		}
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 			log.Panicf("%+v", err)
@@ -106,7 +106,7 @@ func main() {
 			log.Panicf("%+v", err)
 		}
 
-		code, post := Post(fmt.Sprintf("http://127.0.0.1:8000/api/v1/logstream/%v", *name), map[string]string{
+		code, post := Post(ctx, fmt.Sprintf("http://127.0.0.1:8000/api/v1/logstream/%v", *name), map[string]string{
 			"Authorization": fmt.Sprintf("Basic %v", auth),
 			"Content-Type":  "application/json",
 		}, &buffer)
