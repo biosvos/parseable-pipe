@@ -2,21 +2,15 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/biosvos/parseable-pipe/internal/http"
+	"github.com/biosvos/parseable-pipe/internal/parseable"
 	"io"
 	"log"
 	"os"
 )
-
-type Record struct {
-	Logs string `json:"logs"`
-}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -28,22 +22,18 @@ func main() {
 		return
 	}
 
+	auth := "YWRtaW46YWRtaW4K"
+	parser := parseable.NewParseable("http://127.0.0.1:8000", fmt.Sprintf("Basic %v", auth))
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	auth := "YWRtaW46YWRtaW4K"
-	code, result := http.Put(ctx, fmt.Sprintf("http://127.0.0.1:8000/api/v1/logstream/%v", *name), map[string]string{
-		"Authorization": fmt.Sprintf("Basic %v", auth),
-	}, nil)
-	log.Println(result)
-	switch code {
-	case 200: // 성공
-	case 400: // 이미 존재
-	default:
-		log.Panicf(result)
+
+	err := parser.CreateStream(ctx, *name)
+	if err != nil {
+		log.Panicf("%+v", err)
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-
 	for {
 		line, prefix, err := reader.ReadLine()
 		if prefix {
@@ -56,17 +46,9 @@ func main() {
 			log.Panicf("%+v", err)
 		}
 
-		record := Record{Logs: string(line)}
-		var buffer bytes.Buffer
-		err = json.NewEncoder(&buffer).Encode(&record)
+		err = parser.SendLog(ctx, *name, string(line))
 		if err != nil {
 			log.Panicf("%+v", err)
 		}
-
-		code, post := http.Post(ctx, fmt.Sprintf("http://127.0.0.1:8000/api/v1/logstream/%v", *name), map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", auth),
-			"Content-Type":  "application/json",
-		}, &buffer)
-		log.Println(code, post)
 	}
 }
