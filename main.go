@@ -37,7 +37,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err := parser.CreateStream(ctx, *topic)
+	err := parser.CreateTopic(ctx, *topic)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
@@ -55,7 +55,7 @@ func main() {
 			log.Panicf("%+v", err)
 		}
 
-		err = parser.SendLog(ctx, *topic, string(line))
+		err = parser.Publish(ctx, *topic, string(line))
 		if err != nil {
 			log.Panicf("%+v", err)
 		}
