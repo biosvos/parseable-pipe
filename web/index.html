@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-latest.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
+    <script>
+        $(function () {
+            let client = new Paho.Client("127.0.0.1", 15675, "/ws", "clientId");
+
+            client.onConnectionLost = function (responseObject) {
+                if (responseObject.errorCode !== 0) {
+                    console.log("onConnectionLost:" + responseObject.errorMessage);
+                }
+            };
+            client.onMessageArrived = function (message) {
+                console.log("onMessageArrived:" + message.payloadString);
+            };
+
+            // connect the client
+            client.connect({
+                onSuccess: function () {
+                    // Once a connection has been made, make a subscription and send a message.
+                    console.log("onConnect");
+                    client.subscribe("World");
+                    let message = new Paho.Message("Hello");
+                    message.destinationName = "World";
+                    client.send(message);
+                },
+                onFailure: function (message) {
+                    console.log("failed", message)
+                },
+                userName: "guest",
+                password: "guest"
+            });
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>
