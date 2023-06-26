@@ -18,10 +18,8 @@
                 console.log("onMessageArrived:" + message.payloadString);
             };
 
-            // connect the client
             client.connect({
                 onSuccess: function () {
-                    // Once a connection has been made, make a subscription and send a message.
                     console.log("onConnect");
                     client.subscribe("World");
                     let message = new Paho.Message("Hello");
