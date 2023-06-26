@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"github.com/biosvos/parseable-pipe/internal/parseable"
+	"github.com/biosvos/parseable-pipe/internal/mqtt"
 	"io"
 	"log"
 	"os"
@@ -32,12 +32,16 @@ func main() {
 		return
 	}
 
-	broker := parseable.NewParseable("http://127.0.0.1:8000", *user, *password)
+	broker, err := mqtt.NewMqtt()
+	if err != nil {
+		log.Panicf("%+v", err)
+		return
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err := broker.CreateTopic(ctx, *topic)
+	err = broker.CreateTopic(ctx, *topic)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
