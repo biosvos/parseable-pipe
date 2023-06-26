@@ -6,9 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/biosvos/parseable-pipe/internal/flow/broker"
 	"github.com/biosvos/parseable-pipe/internal/http"
 	"github.com/pkg/errors"
 )
+
+var _ broker.Broker = &Parseable{}
 
 type Parseable struct {
 	url  string

@@ -32,12 +32,12 @@ func main() {
 		return
 	}
 
-	parser := parseable.NewParseable("http://127.0.0.1:8000", *user, *password)
+	broker := parseable.NewParseable("http://127.0.0.1:8000", *user, *password)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err := parser.CreateTopic(ctx, *topic)
+	err := broker.CreateTopic(ctx, *topic)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
@@ -55,7 +55,7 @@ func main() {
 			log.Panicf("%+v", err)
 		}
 
-		err = parser.Publish(ctx, *topic, string(line))
+		err = broker.Publish(ctx, *topic, string(line))
 		if err != nil {
 			log.Panicf("%+v", err)
 		}
