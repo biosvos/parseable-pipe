@@ -3,30 +3,23 @@ package main
 import (
 	"bufio"
 	"context"
-	"encoding/base64"
 	"errors"
 	"flag"
-	"fmt"
 	"github.com/biosvos/parseable-pipe/internal/parseable"
 	"io"
 	"log"
 	"os"
 )
 
-func encodeAuth(user, password string) string {
-	form := fmt.Sprintf("%v:%v", user, password)
-	return base64.StdEncoding.EncodeToString([]byte(form))
-}
-
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	stream := flag.String("stream", "", "stream")
+	topic := flag.String("topic", "", "topic")
 	user := flag.String("user", "", "user")
 	password := flag.String("password", "", "password")
 
 	flag.Parse()
-	if !isSet(stream) {
+	if !isSet(topic) {
 		log.Println("set stream")
 		return
 	}
@@ -39,13 +32,12 @@ func main() {
 		return
 	}
 
-	auth := encodeAuth(*user, *password)
-	parser := parseable.NewParseable("http://127.0.0.1:8000", fmt.Sprintf("Basic %v", auth))
+	parser := parseable.NewParseable("http://127.0.0.1:8000", *user, *password)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err := parser.CreateStream(ctx, *stream)
+	err := parser.CreateStream(ctx, *topic)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
@@ -63,7 +55,7 @@ func main() {
 			log.Panicf("%+v", err)
 		}
 
-		err = parser.SendLog(ctx, *stream, string(line))
+		err = parser.SendLog(ctx, *topic, string(line))
 		if err != nil {
 			log.Panicf("%+v", err)
 		}

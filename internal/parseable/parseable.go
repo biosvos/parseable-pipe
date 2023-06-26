@@ -3,6 +3,7 @@ package parseable
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/biosvos/parseable-pipe/internal/http"
@@ -14,7 +15,13 @@ type Parseable struct {
 	auth string
 }
 
-func NewParseable(url string, auth string) *Parseable {
+func encodeAuth(user, password string) string {
+	form := fmt.Sprintf("%v:%v", user, password)
+	return base64.StdEncoding.EncodeToString([]byte(form))
+}
+
+func NewParseable(url string, user, password string) *Parseable {
+	auth := encodeAuth(user, password)
 	return &Parseable{url: url, auth: auth}
 }
 
