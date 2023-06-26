@@ -12,23 +12,20 @@
         function callFunction(obj) {
             $(".active").removeClass("active");
             $(obj).addClass("active");
+
+            $("#show").remove();
+            let stylesheet = `<style id=show> .${obj.id} { display: block !important; } </style>`;
+            $("head").append(stylesheet);
         }
+
         $(function () {
             const client = mqtt.connect("ws://127.0.0.1:9001");
             client.subscribe("#");
-
             client.on("message", function (topic, payload) {
                 let message = payload.toString();
-                console.log(topic)
-                $("#paragraph").append(`<span class=${topic}>${message}</span><br>`);
+                $("#paragraph").append(`<span class=${topic}>${message}<br></span>`);
                 if ($(`#sidebar #${topic}`).length === 0) {
                     $("#sidebar").append(`<li><a id=${topic} href="javascript:void(0);" onclick="callFunction(this);">${topic}</a></li>`);
-                }
-
-                if ($(`#${topic}`).hasClass("active")) {
-                    $(`.${topic}`).show();
-                } else {
-                    $(`.${topic}`).hide();
                 }
             });
         })
@@ -36,10 +33,8 @@
 </head>
 <body>
 <ul id="sidebar">
-    <li><a class="active" href="#home">Home</a></li>
 </ul>
 <div style="margin-left:10%;padding:1px 16px;">
-    height:1000px;
     <p id="paragraph"></p>
 </div>
 </body>

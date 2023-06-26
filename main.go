@@ -20,7 +20,7 @@ func main() {
 
 	flag.Parse()
 	if !isSet(topic) {
-		log.Println("set stream")
+		log.Println("set topic")
 		return
 	}
 	//if !isSet(user) {

@@ -2,6 +2,10 @@ body {
   margin: 0;
 }
 
+span {
+  display: none;
+}
+
 ul {
   list-style-type: none;
   margin: 0;
