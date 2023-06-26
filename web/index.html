@@ -15,7 +15,10 @@
 
             client.on("message", function (topic, payload) {
                 let message = payload.toString();
-                $("#paragraph").append(`<span>${message}</span><br>`)
+                $("#paragraph").append(`<span>${message}</span><br>`);
+                if ($(`#sidebar #${topic}`).length === 0) {
+                    $("#sidebar").append(`<li><a id=${topic}>${topic}</a></li>`);
+                }
             });
         })
     </script>
