@@ -10,9 +10,11 @@
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         function callFunction(obj) {
+            // tab 색상 변경
             $(".active").removeClass("active");
             $(obj).addClass("active");
 
+            // tab 에 해당하는 컨텐츠만 필터링
             $("#show").remove();
             let stylesheet = `<style id=show> .${obj.id} { display: block !important; } </style>`;
             $("head").append(stylesheet);
@@ -22,8 +24,11 @@
             const client = mqtt.connect("ws://127.0.0.1:9001");
             client.subscribe("#");
             client.on("message", function (topic, payload) {
+                // 새로운 내용 추가
                 let message = payload.toString();
                 $("#paragraph").append(`<span class=${topic}>${message}<br></span>`);
+
+                // 새로운 tab 추가
                 if ($(`#sidebar #${topic}`).length === 0) {
                     $("#sidebar").append(`<li><a id=${topic} href="javascript:void(0);" onclick="callFunction(this);">${topic}</a></li>`);
                 }
