@@ -36,6 +36,13 @@
                 let message = payload.toString();
                 $("#paragraph").append(`<span class=${topic}>${message}<br></span>`);
 
+                // 스크롤 다운
+                if ($(".active").attr("id") === topic) {
+                    $("html").scrollTop(function () {
+                        return this.scrollHeight;
+                    });
+                }
+
                 // 새로운 tab 추가
                 if ($(`#sidebar #${topic}`).length === 0) {
                     $("#sidebar").append(`<li><a id=${topic} href="javascript:void(0);" onclick="callFunction(this);">${topic}</a></li>`);
