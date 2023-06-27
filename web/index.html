@@ -19,8 +19,8 @@
             let stylesheet = `<style id=show> .${obj.id} { display: block !important; } </style>`;
             $("head").append(stylesheet);
 
+            // 맨 아래로 스크롤
             $("html").scrollTop(function () {
-                console.log(this.scrollHeight);
                 return this.scrollHeight;
             });
         }
