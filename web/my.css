@@ -32,6 +32,13 @@ li a {
 li a.active {
     background-color: #04AA6D;
     color: white;
+    position: relative;
+}
+
+li a.alert:after {
+    content: "\1F534";
+    position: absolute;
+    right: .65em;
 }
 
 li a:hover:not(.active) {
